@@ -131,7 +131,7 @@ export async function install(key: string, value: string): Promise<boolean> {
   await fs.rename(path.resolve(paths.unpacked, subdirPath), paths.destination);
   await fs.appendFile(
     path.resolve(defintionsPath, 'index.d.ts'),
-    (await glob(path.resolve(paths.destination, '*/*.d.ts'), {
+    (await glob(path.resolve(paths.destination, '*.d.ts'), {
       cwd: defintionsPath
     }))
       .map((definitionPath: string) => {
