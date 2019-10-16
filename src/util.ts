@@ -106,6 +106,9 @@ export async function install(key: string, value: string): Promise<boolean> {
       isGit = true;
     }
   }
+  if (!(await fs.pathExists(paths.unpacked))) {
+    paths.unpacked = path.resolve(paths.tmp, 'package');
+  }
   if (isGit) {
     await fs.remove(paths.unpacked);
     await clone(parsedUrl.origin + parsedUrl.pathname, paths.unpacked);
