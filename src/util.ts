@@ -2,6 +2,7 @@ import Url from 'url-parse';
 import asyncCrossSpawn from 'async-cross-spawn';
 import axios from 'axios';
 import fs from 'fs-extra';
+import glob from 'glob-promise';
 import path from 'path';
 import pkgDir from 'pkg-dir';
 import tar from 'tar';
@@ -128,5 +129,17 @@ export async function install(key: string, value: string): Promise<boolean> {
     oc(parsedUrl.hash.split('::'))[1]('').match(/\/(.+)/)
   )[1]('');
   await fs.rename(path.resolve(paths.unpacked, subdirPath), paths.destination);
+  await fs.appendFile(
+    path.resolve(defintionsPath, 'index.d.ts'),
+    (await glob(path.resolve(paths.destination, '**/*.ts'), {
+      cwd: defintionsPath
+    }))
+      .map((definitionPath: string) => {
+        return `/// <reference path=".${definitionPath.substr(
+          defintionsPath.length
+        )}" />`;
+      })
+      .join('\n')
+  );
   return true;
 }

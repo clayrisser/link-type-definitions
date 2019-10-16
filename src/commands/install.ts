@@ -7,6 +7,7 @@ import { oc } from 'ts-optchain.macro';
 import { install } from '../util';
 
 const rootPath = pkgDir.sync(process.cwd()) || process.cwd();
+const defintionsPath = path.resolve(rootPath, 'node_modules/@types/_');
 const tmpPath = path.resolve(rootPath, '.tmp/tspm');
 
 export default class Install extends Command {
@@ -23,7 +24,9 @@ export default class Install extends Command {
   async run() {
     const spinner = ora();
     const pkg = await import(path.resolve(rootPath, 'package.json'));
+    spinner.start('installing type definitions');
     await fs.remove(tmpPath);
+    await fs.remove(defintionsPath);
     await Promise.all(
       Object.entries(oc(pkg).typeDefinitions({})).map(
         async ([key, value]: [string, any]) => {
