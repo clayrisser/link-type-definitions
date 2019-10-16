@@ -14,6 +14,9 @@ Please ★ this repo if you found it useful ★ ★ ★
 
 - install typescript definitions from npm
 - publish typescript definitions to npm
+- supports git repos
+- supports tar files
+- supports npm packages
 
 ## Installation
 
@@ -49,7 +52,7 @@ _Notice that you can install type definition that are not part of DefinitelyType
     "tsdpm": "^0.0.2"
   },
   "typeDefinitions": {
-    "some-random-types": "0.0.1"
+    "closure-library": "https://github.com/fivetran/DefinitelyTyped.git#::/closure-library"
   }
 }
 ```
