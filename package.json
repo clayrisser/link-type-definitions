@@ -1,6 +1,6 @@
 {
   "name": "tsdpm",
-  "version": "0.0.2",
+  "version": "0.1.0",
   "description": "typescript definition package manager",
   "keywords": [
     "tsdpm",
@@ -34,7 +34,7 @@
     "url": "https://github.com/codejamninja/tsdpm"
   },
   "scripts": {
-    "build": "npm run test && babel src -d lib --extensions \".ts,.tsx\" --source-maps inline && tsc -d --emitDeclarationOnly",
+    "build": "npm run test && babel src -d lib --extensions \".ts,.tsx\" --source-maps inline && tsc -d --emitDeclarationOnly && oclif-dev manifest",
     "clean": "git clean -fXd -e \\!node_modules -e \\!node_modules/**/* && jest --clearCache",
     "clean:purge": "jest --clearCache && git clean -fXd",
     "format": "prettier --write ./**/*.{json,md,scss,yaml,yml,js,jsx,ts,tsx} --ignore-path .gitignore",
@@ -50,13 +50,16 @@
     "@oclif/config": "^1.13.3",
     "@oclif/errors": "^1.2.2",
     "@oclif/plugin-help": "^2.2.1",
+    "async-cross-spawn": "^0.0.2",
     "axios": "^0.19.0",
     "core-js": "^3.3.2",
     "fs-extra": "^8.1.0",
+    "nodegit": "^0.26.2",
     "ora": "^4.0.2",
     "pkg-dir": "^4.2.0",
     "tar": "^5.0.5",
-    "ts-optchain.macro": "^1.1.5"
+    "ts-optchain.macro": "^1.1.5",
+    "url-parse": "^1.4.7"
   },
   "devDependencies": {
     "@babel/cli": "^7.6.4",
@@ -67,7 +70,9 @@
     "@types/fs-extra": "^8.0.0",
     "@types/jest": "^24.0.19",
     "@types/node": "^12.11.1",
+    "@types/nodegit": "^0.24.12",
     "@types/tar": "^4.0.3",
+    "@types/url-parse": "^1.4.3",
     "@typescript-eslint/eslint-plugin": "^2.4.0",
     "@typescript-eslint/parser": "^2.4.0",
     "babel-preset-jam": "^0.4.3",

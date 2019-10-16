@@ -1,13 +1,24 @@
+import Url from 'url-parse';
+import asyncCrossSpawn from 'async-cross-spawn';
 import axios from 'axios';
 import fs from 'fs-extra';
 import path from 'path';
 import pkgDir from 'pkg-dir';
 import tar from 'tar';
+import { Clone } from 'nodegit';
 import { oc } from 'ts-optchain.macro';
 
 const rootPath = pkgDir.sync(process.cwd()) || process.cwd();
 const tmpPath = path.resolve(rootPath, '.tmp/tspm');
-const defintionsPath = path.resolve(rootPath, 'src/@types/type_definitions');
+const defintionsPath = path.resolve(rootPath, 'node_modules/@types/_');
+const { clone } = Clone;
+
+export interface Paths {
+  destination: string;
+  tar: string;
+  tmp: string;
+  unpacked: string;
+}
 
 export interface PackageInfo {
   name: string;
@@ -18,10 +29,20 @@ export async function getPackageInfo(
   key: string,
   value: string
 ): Promise<PackageInfo> {
-  const res = await axios.get(`https://registry.npmjs.org/${key}`);
+  let name = key;
+  let url = null;
+  const res = await axios
+    .get(`https://registry.npmjs.org/${key}`)
+    .catch(() => null);
+  url = oc(res).data.versions[value].dist.tarball();
+  if (url) {
+    ({ name } = oc(res).data.versions[value]({}));
+  } else {
+    url = value;
+  }
   return {
-    name: oc(res).data.versions[value]({}).name,
-    url: oc(res).data.versions[value].dist.tarball()
+    name,
+    url
   };
 }
 
@@ -36,29 +57,75 @@ export async function download(url: string, filePath: string) {
   });
 }
 
-export async function install(key: string, value: string): Promise<boolean> {
-  const { url, name } = await getPackageInfo(key, value);
-  if (!url) return false;
-  const filename = oc((url || '').match(/[^/]+$/))[0]('');
-  if (!filename) return false;
-  const currentTmpPath = path.resolve(
-    tmpPath,
-    `${key}-${value}`.replace(/[/@]/g, '__')
-  );
+export function getPaths(
+  key: string,
+  pkgName: string,
+  filename: string
+): Paths {
+  const currentTmpPath = path.resolve(tmpPath, key);
   const tarPath = path.resolve(currentTmpPath, filename);
-  await fs.mkdirs(currentTmpPath);
-  await download(url, tarPath);
-  await tar.x({ file: tarPath, cwd: currentTmpPath });
-  const nameArray = name.split('/');
-  await fs.mkdirs(defintionsPath);
+  const pkgNameArray = pkgName.split('/');
   const destinationPath = path.resolve(
     defintionsPath,
     key.replace(/[/@]/g, '__')
   );
-  if (await fs.pathExists(destinationPath)) await fs.remove(destinationPath);
-  await fs.rename(
-    path.resolve(currentTmpPath, nameArray[nameArray.length - 1]),
-    destinationPath
+  const unpackedPath = path.resolve(
+    currentTmpPath,
+    pkgNameArray[pkgNameArray.length - 1]
   );
+  return {
+    tmp: currentTmpPath,
+    tar: tarPath,
+    destination: destinationPath,
+    unpacked: unpackedPath
+  };
+}
+
+export async function install(key: string, value: string): Promise<boolean> {
+  const { url, name } = await getPackageInfo(key, value);
+  const parsedUrl = new Url(url);
+  const filename = oc((url || '').match(/[^/]+$/))[0]('');
+  const paths = getPaths(key, name, filename);
+  if (!url) return false;
+  if (!filename) return false;
+  await fs.mkdirs(paths.tmp);
+  let isGit = false;
+  if (
+    url.substr(url.length - 4) === '.git' ||
+    url.substr(0, 4) === 'git@' ||
+    url.substr(0, 6) === 'ssh://'
+  ) {
+    isGit = true;
+  }
+  if (!isGit) {
+    await download(url, paths.tar);
+    try {
+      await tar.x({ file: paths.tar, cwd: paths.tmp });
+    } catch (err) {
+      isGit = true;
+    }
+  }
+  if (isGit) {
+    await clone(parsedUrl.origin + parsedUrl.pathname, paths.unpacked);
+    const branchName = oc(
+      oc(parsedUrl.hash.split('::'))[0]('').match(/#(.+)/)
+    )[1]();
+    if (branchName) {
+      await asyncCrossSpawn('git', ['checkout', `origin/${branchName}`], {
+        cwd: paths.unpacked
+      });
+    }
+  }
+  if (await fs.pathExists(defintionsPath)) {
+    await fs.mkdirs(defintionsPath);
+    await fs.writeFile(path.resolve(defintionsPath, 'index.d.ts'), '');
+  }
+  if (await fs.pathExists(paths.destination)) {
+    await fs.remove(paths.destination);
+  }
+  const subdirPath = oc(
+    oc(parsedUrl.hash.split('::'))[1]('').match(/\/(.+)/)
+  )[1]('');
+  await fs.rename(path.resolve(paths.unpacked, subdirPath), paths.destination);
   return true;
 }
