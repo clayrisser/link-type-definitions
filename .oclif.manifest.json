@@ -1,0 +1,29 @@
+{
+  "version": "0.0.1",
+  "commands": {
+    "install": {
+      "id": "install",
+      "description": "install typescript definition package",
+      "pluginName": "tspm",
+      "pluginType": "core",
+      "aliases": [],
+      "examples": ["$ tspm install @types/node"],
+      "flags": {
+        "help": {
+          "name": "help",
+          "type": "boolean",
+          "char": "h",
+          "description": "show CLI help",
+          "allowNo": false
+        },
+        "force": {
+          "name": "force",
+          "type": "boolean",
+          "char": "f",
+          "allowNo": false
+        }
+      },
+      "args": [{ "name": "name" }]
+    }
+  }
+}

@@ -1,0 +1,101 @@
+{
+  "name": "tspm",
+  "version": "0.0.1",
+  "description": "typescript package manager",
+  "keywords": [
+    "tspm",
+    "typescript",
+    "package",
+    "manager",
+    "ts"
+  ],
+  "homepage": "https://github.com/codejamninja/tspm",
+  "bugs": {
+    "url": "https://github.com/codejamninja/tspm/issues",
+    "email": "jam@codejam.ninja"
+  },
+  "license": "MIT",
+  "author": {
+    "name": "Jam Risser",
+    "email": "jam@codejam.ninja",
+    "url": "https://codejam.ninja"
+  },
+  "files": [
+    ".oclif.manifest.json",
+    "bin.js",
+    "lib"
+  ],
+  "main": "lib/index.js",
+  "bin": {
+    "tspm": "bin.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/codejamninja/tspm"
+  },
+  "scripts": {
+    "build": "npm run test && babel src -d lib --extensions \".ts,.tsx\" --source-maps inline && tsc -d --emitDeclarationOnly",
+    "clean": "git clean -fXd -e \\!node_modules -e \\!node_modules/**/* && jest --clearCache",
+    "clean:purge": "jest --clearCache && git clean -fXd",
+    "format": "prettier --write ./**/*.{json,md,scss,yaml,yml,js,jsx,ts,tsx} --ignore-path .gitignore",
+    "lint": "npm run format && tsc --allowJs --noEmit && eslint --ext .ts,.tsx ./",
+    "lint:fix": "npm run format && tsc --noEmit && eslint --ext .ts,.tsx --fix ./",
+    "prepublish": "npm run build",
+    "start": "babel-node --extensions \".ts,.tsx\" src/bin",
+    "test": "npm run lint && jest"
+  },
+  "dependencies": {
+    "@babel/polyfill": "^7.6.0",
+    "@oclif/command": "^1.5.19",
+    "@oclif/config": "^1.13.3",
+    "@oclif/errors": "^1.2.2",
+    "@oclif/plugin-help": "^2.2.1",
+    "axios": "^0.19.0",
+    "core-js": "^3.3.2",
+    "fs-extra": "^8.1.0",
+    "ora": "^4.0.2",
+    "pkg-dir": "^4.2.0",
+    "tar": "^5.0.5",
+    "ts-optchain.macro": "^1.1.5"
+  },
+  "devDependencies": {
+    "@babel/cli": "^7.6.4",
+    "@babel/core": "^7.6.4",
+    "@babel/node": "^7.6.3",
+    "@babel/preset-typescript": "^7.6.0",
+    "@oclif/dev-cli": "^1.22.2",
+    "@types/fs-extra": "^8.0.0",
+    "@types/jest": "^24.0.19",
+    "@types/node": "^12.11.1",
+    "@types/tar": "^4.0.3",
+    "@typescript-eslint/eslint-plugin": "^2.4.0",
+    "@typescript-eslint/parser": "^2.4.0",
+    "babel-preset-jam": "^0.4.3",
+    "eslint": "^6.5.1",
+    "eslint-config-airbnb-typescript": "^5.0.0",
+    "eslint-config-jam": "^0.2.20",
+    "globby": "^10.0.1",
+    "jest": "^24.9.0",
+    "ts-node": "^8.4.1",
+    "tsc": "^1.20150623.0",
+    "typescript": "^3.6.4"
+  },
+  "engines": {
+    "node": ">=6.0.0"
+  },
+  "eslintIgnore": [
+    "lib",
+    "type_definitions"
+  ],
+  "oclif": {
+    "commands": "./lib/commands",
+    "bin": "tspm",
+    "plugins": [
+      "@oclif/plugin-help"
+    ]
+  },
+  "jest": {
+    "testRegex": "tests(/|/.*/)[^_/]*[jt]sx?$",
+    "verbose": true
+  }
+}
