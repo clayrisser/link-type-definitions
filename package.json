@@ -1,17 +1,17 @@
 {
-  "name": "tspm",
-  "version": "0.0.1",
+  "name": "tscpm",
+  "version": "0.0.2",
   "description": "typescript package manager",
   "keywords": [
-    "tspm",
+    "tscpm",
     "typescript",
     "package",
     "manager",
     "ts"
   ],
-  "homepage": "https://github.com/codejamninja/tspm",
+  "homepage": "https://github.com/codejamninja/tscpm",
   "bugs": {
-    "url": "https://github.com/codejamninja/tspm/issues",
+    "url": "https://github.com/codejamninja/tscpm/issues",
     "email": "jam@codejam.ninja"
   },
   "license": "MIT",
@@ -27,11 +27,11 @@
   ],
   "main": "lib/index.js",
   "bin": {
-    "tspm": "bin.js"
+    "tscpm": "bin.js"
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/codejamninja/tspm"
+    "url": "https://github.com/codejamninja/tscpm"
   },
   "scripts": {
     "build": "npm run test && babel src -d lib --extensions \".ts,.tsx\" --source-maps inline && tsc -d --emitDeclarationOnly",
@@ -89,7 +89,7 @@
   ],
   "oclif": {
     "commands": "./lib/commands",
-    "bin": "tspm",
+    "bin": "tscpm",
     "plugins": [
       "@oclif/plugin-help"
     ]

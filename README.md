@@ -1,6 +1,6 @@
-# tspm
+# tscpm
 
-[![GitHub stars](https://img.shields.io/github/stars/codejamninja/tspm.svg?style=social&label=Stars)](https://github.com/codejamninja/tspm)
+[![GitHub stars](https://img.shields.io/github/stars/codejamninja/tscpm.svg?style=social&label=Stars)](https://github.com/codejamninja/tscpm)
 
 > typescript package manager
 
@@ -14,7 +14,7 @@ Please ★ this repo if you found it useful ★ ★ ★
 ## Installation
 
 ```sh
-npm install -g tspm
+npm install -g tscpm
 ```
 
 ## Dependencies
@@ -23,29 +23,29 @@ npm install -g tspm
 
 ## Usage
 
-[Contribute](https://github.com/codejamninja/tspm/blob/master/CONTRIBUTING.md) usage docs
+[Contribute](https://github.com/codejamninja/tscpm/blob/master/CONTRIBUTING.md) usage docs
 
 ## Support
 
-Submit an [issue](https://github.com/codejamninja/tspm/issues/new)
+Submit an [issue](https://github.com/codejamninja/tscpm/issues/new)
 
 ## Screenshots
 
-[Contribute](https://github.com/codejamninja/tspm/blob/master/CONTRIBUTING.md) a screenshot
+[Contribute](https://github.com/codejamninja/tscpm/blob/master/CONTRIBUTING.md) a screenshot
 
 ## Contributing
 
-Review the [guidelines for contributing](https://github.com/codejamninja/tspm/blob/master/CONTRIBUTING.md)
+Review the [guidelines for contributing](https://github.com/codejamninja/tscpm/blob/master/CONTRIBUTING.md)
 
 ## License
 
-[MIT License](https://github.com/codejamninja/tspm/blob/master/LICENSE)
+[MIT License](https://github.com/codejamninja/tscpm/blob/master/LICENSE)
 
 [Jam Risser](https://codejam.ninja) © 2019
 
 ## Changelog
 
-Review the [changelog](https://github.com/codejamninja/tspm/blob/master/CHANGELOG.md)
+Review the [changelog](https://github.com/codejamninja/tscpm/blob/master/CHANGELOG.md)
 
 ## Credits
 
