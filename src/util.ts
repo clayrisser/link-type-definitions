@@ -91,7 +91,7 @@ export async function install(key: string, value: string): Promise<boolean> {
   await fs.mkdirs(paths.tmp);
   let isGit = false;
   if (
-    url.substr(url.length - 4) === '.git' ||
+    parsedUrl.pathname.substr(parsedUrl.pathname.length - 4) === '.git' ||
     url.substr(0, 4) === 'git@' ||
     url.substr(0, 6) === 'ssh://'
   ) {
@@ -106,6 +106,7 @@ export async function install(key: string, value: string): Promise<boolean> {
     }
   }
   if (isGit) {
+    await fs.remove(paths.unpacked);
     await clone(parsedUrl.origin + parsedUrl.pathname, paths.unpacked);
     const branchName = oc(
       oc(parsedUrl.hash.split('::'))[0]('').match(/#(.+)/)
@@ -116,7 +117,7 @@ export async function install(key: string, value: string): Promise<boolean> {
       });
     }
   }
-  if (await fs.pathExists(defintionsPath)) {
+  if (!(await fs.pathExists(defintionsPath))) {
     await fs.mkdirs(defintionsPath);
     await fs.writeFile(path.resolve(defintionsPath, 'index.d.ts'), '');
   }
