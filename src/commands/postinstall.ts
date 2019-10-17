@@ -6,12 +6,7 @@ import { Command, flags } from '@oclif/command';
 import { oc } from 'ts-optchain.macro';
 import { install } from '../util';
 
-const modulePath = pkgDir.sync(require.resolve(process.cwd())) || process.cwd();
-const rootPath = modulePath.replace(/\/node_modules\/.+$/, '');
-const defintionsPath = path.resolve(rootPath, 'node_modules/@types/_');
-const tmpPath = path.resolve(rootPath, '.tmp/tspm');
-
-export default class Install extends Command {
+export default class PostInstall extends Command {
   static description = 'install typescript definition package';
 
   static examples = [`$ tspm install @types/node`];
@@ -20,10 +15,16 @@ export default class Install extends Command {
     help: flags.help({ char: 'h' })
   };
 
-  static args = [{ name: 'name' }];
+  static args = [{ name: 'package', required: true }];
 
   async run() {
+    const { args } = this.parse(PostInstall);
     const spinner = ora();
+    const modulePath =
+      pkgDir.sync(require.resolve(args.PACKAGE)) || process.cwd();
+    const rootPath = modulePath.replace(/\/node_modules\/.+$/, '');
+    const defintionsPath = path.resolve(rootPath, 'node_modules/@types/_');
+    const tmpPath = path.resolve(rootPath, '.tmp/tspm');
     const pkg = await import(path.resolve(modulePath, 'package.json'));
     spinner.start('installing type definitions');
     await fs.remove(tmpPath);
