@@ -6,7 +6,18 @@ import { Command, flags } from '@oclif/command';
 import { oc } from 'ts-optchain.macro';
 import { install } from '../util';
 
-const rootPath = pkgDir.sync(process.cwd()) || process.cwd();
+export function getDefinitionsPath(cwd: string): string {
+  const nodeModulesPath = path.resolve(cwd, '../../node_modules');
+  if (
+    fs.existsSync(nodeModulesPath) &&
+    fs.lstatSync(nodeModulesPath).isDirectory()
+  ) {
+    return getDefinitionsPath(path.resolve(cwd, '../../..'));
+  }
+  return pkgDir.sync(cwd) || cwd;
+}
+
+const rootPath = getDefinitionsPath(process.cwd());
 const defintionsPath = path.resolve(rootPath, 'node_modules/@types/_');
 const tmpPath = path.resolve(rootPath, '.tmp/tspm');
 
