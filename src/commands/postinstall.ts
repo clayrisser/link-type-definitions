@@ -15,7 +15,7 @@ export default class PostInstall extends Command {
     help: flags.help({ char: 'h' })
   };
 
-  static args = [{ name: 'package', required: true }];
+  static args = [{ name: 'PACKAGE', required: true }];
 
   async run() {
     const { args } = this.parse(PostInstall);

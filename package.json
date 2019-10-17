@@ -1,6 +1,6 @@
 {
   "name": "tsdpm",
-  "version": "0.1.13",
+  "version": "0.1.14",
   "description": "typescript definition package manager",
   "keywords": [
     "tsdpm",
