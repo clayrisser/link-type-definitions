@@ -20,8 +20,11 @@ export default class PostInstall extends Command {
   async run() {
     const { args } = this.parse(PostInstall);
     const spinner = ora();
-    const modulePath =
-      pkgDir.sync(require.resolve(args.PACKAGE)) || process.cwd();
+    let modulePath = process.cwd();
+    try {
+      modulePath = require.resolve(args.PACKAGE);
+    } catch (err) {}
+    modulePath = pkgDir.sync(modulePath) || modulePath;
     const rootPath = modulePath.replace(/\/node_modules\/.+$/, '');
     const defintionsPath = path.resolve(rootPath, 'node_modules/@types/_');
     const tmpPath = path.resolve(rootPath, '.tmp/tspm');
