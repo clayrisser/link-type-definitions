@@ -1,12 +1,13 @@
-import ora from 'ora';
 import fs from 'fs-extra';
+import ora from 'ora';
 import path from 'path';
+import pkg from 'npm-pkg-json';
 import pkgDir from 'pkg-dir';
 import { Command, flags } from '@oclif/command';
 import { oc } from 'ts-optchain.macro';
 import { install } from '../util';
 
-const modulePath = pkgDir.sync(__dirname) || process.cwd();
+const modulePath = pkgDir.sync(require.resolve(pkg.name)) || process.cwd();
 const rootPath = modulePath.replace(/\/node_modules\/.+$/, '');
 const defintionsPath = path.resolve(rootPath, 'node_modules/@types/_');
 const tmpPath = path.resolve(rootPath, '.tmp/tspm');

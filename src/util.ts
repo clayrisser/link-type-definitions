@@ -4,12 +4,13 @@ import axios from 'axios';
 import fs from 'fs-extra';
 import glob from 'glob-promise';
 import path from 'path';
+import pkg from 'npm-pkg-json';
 import pkgDir from 'pkg-dir';
 import tar from 'tar';
 import { Clone } from 'nodegit';
 import { oc } from 'ts-optchain.macro';
 
-const modulePath = pkgDir.sync(__dirname) || process.cwd();
+const modulePath = pkgDir.sync(require.resolve(pkg.name)) || process.cwd();
 const rootPath = modulePath.replace(/\/node_modules\/.+$/, '');
 const tmpPath = path.resolve(rootPath, '.tmp/tspm');
 const defintionsPath = path.resolve(rootPath, 'node_modules/@types/_');
