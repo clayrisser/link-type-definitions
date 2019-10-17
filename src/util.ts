@@ -9,7 +9,8 @@ import tar from 'tar';
 import { Clone } from 'nodegit';
 import { oc } from 'ts-optchain.macro';
 
-const rootPath = pkgDir.sync(process.cwd()) || process.cwd();
+const modulePath = pkgDir.sync(process.cwd()) || process.cwd();
+const rootPath = modulePath.replace(/\/node_modules\/.+$/, '');
 const tmpPath = path.resolve(rootPath, '.tmp/tspm');
 const defintionsPath = path.resolve(rootPath, 'node_modules/@types/_');
 const { clone } = Clone;
