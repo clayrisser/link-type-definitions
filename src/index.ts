@@ -43,7 +43,7 @@ export default async function linkTypeDefinitions(
     copy: true,
     cwd: process.cwd(),
     dryRun: false,
-    ns: '_',
+    ns: `_${packageName}`,
     save: false,
     unlink: false,
     verbose: false,
