@@ -1,6 +1,6 @@
 {
   "name": "tsdpm",
-  "version": "0.1.15",
+  "version": "0.2.0",
   "description": "typescript definition package manager",
   "keywords": [
     "tsdpm",
@@ -22,70 +22,71 @@
   },
   "files": [
     ".oclif.manifest.json",
-    "bin.js",
+    "bin",
     "lib"
   ],
   "main": "lib/index.js",
   "bin": {
-    "tsdpm": "bin.js"
+    "tsdpm": "bin/tsdpm.js"
   },
   "repository": {
     "type": "git",
     "url": "https://github.com/codejamninja/tsdpm"
   },
   "scripts": {
-    "build": "npm run test && babel src -d lib --extensions \".ts,.tsx\" --source-maps inline && tsc -d --emitDeclarationOnly && oclif-dev manifest",
-    "clean": "git clean -fXd -e \\!node_modules -e \\!node_modules/**/* && jest --clearCache",
-    "clean:purge": "jest --clearCache && git clean -fXd",
-    "format": "prettier --write ./**/*.{json,md,scss,yaml,yml,js,jsx,ts,tsx} --ignore-path .gitignore",
-    "lint": "npm run format && tsc --allowJs --noEmit && eslint --ext .ts,.tsx ./",
-    "lint:fix": "npm run format && tsc --noEmit && eslint --ext .ts,.tsx --fix ./",
-    "prepublish": "npm run build",
-    "start": "babel-node --extensions \".ts,.tsx\" src/bin",
-    "test": "npm run lint && jest"
+    "build": "make -s build",
+    "clean": "make -s clean",
+    "coverage": "make -s coverage",
+    "format": "make -s format",
+    "inc": "npm version patch --git=false 2>/dev/null || true",
+    "lint": "make -s lint",
+    "prepare": "make -s prepare",
+    "purge": "make -s purge",
+    "report": "make -s report",
+    "spellcheck": "make -s spellcheck",
+    "start": "make -s start",
+    "test": "make -s test",
+    "test:ui": "make test-ui",
+    "test:watch": "make -s test-watch"
   },
   "dependencies": {
-    "@babel/polyfill": "^7.6.0",
-    "@oclif/command": "^1.5.19",
-    "@oclif/config": "^1.13.3",
-    "@oclif/errors": "^1.2.2",
-    "@oclif/plugin-help": "^2.2.1",
-    "async-cross-spawn": "^0.0.2",
-    "axios": "^0.19.0",
-    "core-js": "^3.3.2",
-    "fs-extra": "^8.1.0",
-    "glob-promise": "^3.4.0",
-    "nodegit": "^0.26.2",
-    "npm-pkg-json": "^0.1.0",
-    "ora": "^4.0.2",
-    "pkg-dir": "^4.2.0",
-    "tar": "^5.0.5",
-    "ts-optchain.macro": "^1.1.5",
-    "url-parse": "^1.4.7"
+    "@oclif/command": "^1.7.0",
+    "@oclif/config": "^1.16.0",
+    "@oclif/errors": "^1.3.3",
+    "@oclif/parser": "^3.8.5",
+    "@oclif/plugin-help": "^3.1.0",
+    "core-js": "^3.6.5",
+    "execa": "^4.0.3",
+    "fs-extra": "^9.0.1",
+    "globby": "^11.0.1",
+    "ora": "^4.0.5",
+    "pkg-dir": "^4.2.0"
   },
   "devDependencies": {
-    "@babel/cli": "^7.6.4",
-    "@babel/core": "^7.6.4",
-    "@babel/node": "^7.6.3",
-    "@babel/preset-typescript": "^7.6.0",
-    "@oclif/dev-cli": "^1.22.2",
-    "@types/fs-extra": "^8.0.0",
-    "@types/jest": "^24.0.19",
-    "@types/node": "^12.11.1",
-    "@types/nodegit": "^0.24.12",
-    "@types/tar": "^4.0.3",
-    "@types/url-parse": "^1.4.3",
-    "@typescript-eslint/eslint-plugin": "^2.4.0",
-    "@typescript-eslint/parser": "^2.4.0",
-    "babel-preset-jam": "^0.4.3",
-    "eslint": "^6.5.1",
-    "eslint-config-airbnb-typescript": "^5.0.0",
-    "eslint-config-jam": "^0.2.20",
-    "globby": "^10.0.1",
-    "jest": "^24.9.0",
-    "ts-node": "^8.4.1",
-    "tsc": "^1.20150623.0",
-    "typescript": "^3.6.4"
+    "@babel/cli": "^7.10.5",
+    "@babel/core": "^7.11.0",
+    "@babel/node": "^7.10.5",
+    "@babel/plugin-proposal-class-properties": "^7.10.4",
+    "@babel/plugin-proposal-decorators": "^7.10.5",
+    "@babel/plugin-proposal-optional-chaining": "^7.11.0",
+    "@babel/preset-env": "^7.11.0",
+    "@babel/preset-typescript": "^7.10.4",
+    "@types/fs-extra": "^9.0.1",
+    "@types/jest": "^26.0.8",
+    "@typescript-eslint/eslint-plugin": "^3.7.1",
+    "@typescript-eslint/parser": "^3.7.1",
+    "cspell": "^4.0.63",
+    "eslint": "^7.6.0",
+    "eslint-config-airbnb-typescript": "^9.0.0",
+    "eslint-config-prettier": "^6.11.0",
+    "eslint-plugin-import": "^2.22.0",
+    "gnumake": "^0.3.5",
+    "jest": "^26.2.2",
+    "jest-sonar-reporter": "^2.0.0",
+    "lockfile-lint": "^4.3.7",
+    "majestic": "^1.7.0",
+    "prettier": "^2.0.5",
+    "typescript": "^3.9.7"
   },
   "engines": {
     "node": ">=6.0.0"
@@ -104,5 +105,10 @@
   "jest": {
     "testRegex": "tests(/|/.*/)[^_/]*[jt]sx?$",
     "verbose": true
+  },
+  "jestSonar": {
+    "reportPath": "node_modules/.tmp/reports",
+    "reportFile": "test-report.xml",
+    "indent": 4
   }
 }
