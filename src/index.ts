@@ -12,6 +12,7 @@ const packageVersion = pkg.version;
 
 export interface Pkg {
   linkTypeDefinitions: string[];
+  linkTypeDefinitionsOptions: Partial<LinkTypeDefinitionsOptions>;
   [key: string]: any;
 }
 
@@ -49,9 +50,8 @@ export default async function linkTypeDefinitions(
     ...partialOptions
   };
   try {
-    const pkgOptions = require(path.resolve(options.cwd, 'package.json'))?.[
-      packageName
-    ];
+    const pkgOptions = require(path.resolve(options.cwd, 'package.json'))
+      ?.linkTypeDefinitionsOptions;
     delete pkgOptions.cwd;
     delete pkgOptions.moduleName;
     delete pkgOptions.save;
@@ -199,9 +199,8 @@ export async function setup(
     ...partialOptions
   };
   try {
-    const pkgOptions = require(path.resolve(options.cwd, 'package.json'))?.[
-      packageName
-    ];
+    const pkgOptions = require(path.resolve(options.cwd, 'package.json'))
+      ?.linkTypeDefinitionsOptions;
     options = {
       ...options,
       ...pkgOptions,
@@ -231,12 +230,12 @@ export async function setup(
   } catch (err) {}
   if (!pkg) return false;
   const { linkTypeDefinitions, scripts } = pkg;
-  if (linkTypeDefinitions || pkg[packageName]) {
+  if (linkTypeDefinitions || pkg.linkTypeDefinitionsOptions) {
     spinner.warn(`project already setup with ${packageName}`);
     return false;
   }
   pkg.linkTypeDefinitions = [];
-  pkg[packageName] = { typesLocation: relativeTypesLocation };
+  pkg.linkTypeDefinitionsOptions = { typesLocation: relativeTypesLocation };
   let postinstall = `${packageName} link`;
   if (scripts?.postinstall?.length) {
     postinstall = `${scripts.postinstall} && ${postinstall}`;

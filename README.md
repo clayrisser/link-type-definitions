@@ -2,26 +2,18 @@
 
 [![GitHub stars](https://img.shields.io/github/stars/codejamninja/link-type-definitions.svg?style=social&label=Stars)](https://github.com/codejamninja/link-type-definitions)
 
-> typescript definition package manager
+> link type definitions
 
-Install and publish 3rd party typescript defintions without DefinitelyTyped.
+Link and use 3rd party typescript defintions without DefinitelyTyped.
 
 I build this because it is not possible to use type definitions without copy pasting them to the `src/@types` folder or submitting a pull request (and getting it accepted) from DefinitelyTyped.
 
 Please ★ this repo if you found it useful ★ ★ ★
 
-## Features
-
-- install typescript definitions from npm
-- publish typescript definitions to npm
-- supports git repos
-- supports tar files
-- supports npm packages
-
 ## Installation
 
 ```sh
-npm install --dev link-type-definitions
+npm install -g link-type-definitions
 ```
 
 ## Dependencies
@@ -30,31 +22,53 @@ npm install --dev link-type-definitions
 
 ## Usage
 
-Simply add the npm modules with the type defintions to the `typeDefintions` section in your `package.json` file.
+You can manually setup the project to link type definitions, or you can use the cli to automate the setup..
+
+### Setup your project
+
+Navigate to the root of your project and run the following command.
 
 ```sh
-link-type-definitions install
+link-type-definitions setup
 ```
 
-It is recommended to add `link-type-definitions install` script to the the `postinstall` script.
+This will add the following to your _package.json_.
 
-### Example
-
-_Notice that you can install type definition that are not part of DefinitelyTypes `@types/example`_
+_package.json_
 
 ```json
 {
-  "name": "example",
   "scripts": {
-    "postinstall": "link-type-definitions install"
+    "postinstall": "link-type-definitions link"
   },
-  "devDependancies": {
-    "link-type-definitions": "^0.0.2"
+  "devDependencies": {
+    "link-type-definitions": "^0.2.0"
   },
-  "typeDefinitions": {
-    "closure-library": "https://github.com/fivetran/DefinitelyTyped.git#::/closure-library"
+  "linkTypeDefinitions": [],
+  "linkTypeDefinitionsOptions": {
+    "typesLocation": "src/@types/_"
   }
 }
+```
+
+You may need to reinstall your dependencies after running the setup.
+
+```sh
+npm install
+```
+
+### Install npm modules that contain type definitions
+
+```sh
+npm install --save-dev <SOME_NPM_MODULE>
+```
+
+### Link the modules types
+
+Note that the module must be added to the package.json `dependencies` or `devDependancies` before linking its type definitions. Use the `-S` flag if you want to add the linked dependencies to the _package.json_.
+
+```sh
+link-type-definitions -S <SOME_NPM_MODULE>
 ```
 
 ## Support
