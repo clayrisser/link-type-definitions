@@ -14,7 +14,7 @@ export default class LinkCommand extends Command {
     dry: flags.boolean({ char: 'd', required: false }),
     help: flags.help({ char: 'h', required: false }),
     location: flags.string({ char: 'l', required: false }),
-    save: flags.string({ char: 'S', required: false }),
+    save: flags.boolean({ char: 'S', required: false }),
     verbose: flags.boolean({ char: 'v', required: false })
   };
 
@@ -26,14 +26,17 @@ export default class LinkCommand extends Command {
     spinner?.[flags.verbose ? 'info' : 'start'](
       `linking type definitions${flags.verbose ? ' . . .' : ''}`
     );
-    await linkTypeDefinitions({
-      ...(args.module ? { moduleName: args.module } : {}),
-      ...(flags.copy ? { copy: flags.copy } : {}),
-      ...(flags.dry ? { dryRun: flags.dry } : {}),
-      ...(flags.location ? { typesLocation: flags.location } : {}),
-      ...(flags.save ? { save: flags.save } : {}),
-      ...(flags.verbose ? { verbose: flags.verbose } : {})
-    });
+    await linkTypeDefinitions(
+      {
+        ...(args.module ? { moduleName: args.module } : {}),
+        ...(flags.copy ? { copy: flags.copy } : {}),
+        ...(flags.dry ? { dryRun: flags.dry } : {}),
+        ...(flags.location ? { typesLocation: flags.location } : {}),
+        ...(flags.save ? { save: flags.save } : {}),
+        ...(flags.verbose ? { verbose: flags.verbose } : {})
+      },
+      spinner
+    );
     spinner?.succeed('linked type definitions');
   }
 }

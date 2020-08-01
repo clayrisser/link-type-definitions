@@ -4,7 +4,7 @@ import { Input } from '@oclif/command/lib/flags';
 import { setup } from '..';
 
 export default class SetupCommand extends Command {
-  static description = 'setup typescript defsetupions';
+  static description = 'setup typescript definitions';
 
   static examples = ['$ tsdpm setup'];
 
@@ -19,12 +19,15 @@ export default class SetupCommand extends Command {
   async run() {
     const { flags } = this.parse(SetupCommand);
     const spinner = flags.dry ? undefined : ora();
-    const success = await setup({
-      ...(flags.dry ? { dryRun: flags.dry } : {}),
-      ...(flags.location ? { typesLocation: flags.location } : {}),
-      ...(flags.verbose ? { verbose: flags.verbose } : {}),
-      ...(flags['no-install'] ? { install: false } : { install: true })
-    });
+    const success = await setup(
+      {
+        ...(flags.dry ? { dryRun: flags.dry } : {}),
+        ...(flags.location ? { typesLocation: flags.location } : {}),
+        ...(flags.verbose ? { verbose: flags.verbose } : {}),
+        ...(flags['no-install'] ? { install: false } : { install: true })
+      },
+      spinner
+    );
     if (success) spinner?.succeed('project setup');
   }
 }

@@ -2,6 +2,7 @@ import execa from 'execa';
 import fs from 'fs-extra';
 import globby from 'globby';
 import ora from 'ora';
+import os from 'os';
 import path from 'path';
 import pkgDir from 'pkg-dir';
 import pkg from '../package.json';
@@ -19,6 +20,7 @@ export interface LinkTypeDefinitionsOptions {
   cwd: string;
   dryRun: boolean;
   moduleName?: string;
+  save: boolean;
   typesLocation: string;
   unlink: boolean;
   verbose: boolean;
@@ -33,13 +35,14 @@ export interface SetupOptions {
 }
 
 export async function linkTypeDefinitions(
-  partialOptions: Partial<LinkTypeDefinitionsOptions> = {}
+  partialOptions: Partial<LinkTypeDefinitionsOptions> = {},
+  spinner = ora()
 ) {
-  const spinner = ora();
   let options: LinkTypeDefinitionsOptions = {
     copy: false,
     cwd: process.cwd(),
     dryRun: false,
+    save: false,
     typesLocation: '',
     unlink: false,
     verbose: false,
@@ -49,6 +52,10 @@ export async function linkTypeDefinitions(
     const pkgOptions = require(path.resolve(options.cwd, 'package.json'))?.[
       packageName
     ];
+    delete pkgOptions.cwd;
+    delete pkgOptions.moduleName;
+    delete pkgOptions.save;
+    delete pkgOptions.unlink;
     options = {
       ...options,
       ...pkgOptions,
@@ -74,10 +81,47 @@ export async function linkTypeDefinitions(
     pkg = require(pkgPath);
   } catch (err) {}
   if (!pkg) return;
-  const { linkTypeDefinitions } = pkg;
-  if (!linkTypeDefinitions) return;
+  let { linkTypeDefinitions } = pkg;
+  if (options.moduleName) linkTypeDefinitions = [options.moduleName];
+  if (options) if (!linkTypeDefinitions) return;
   await Promise.all(
     linkTypeDefinitions.map(async (moduleName: string) => {
+      const dependencies = new Set(
+        pkg
+          ? [
+              ...Object.keys(pkg?.dependencies || {}),
+              ...Object.keys(pkg?.devDependencies || {})
+            ]
+          : []
+      );
+      if (!dependencies.has(moduleName) && !options.unlink) {
+        if (options.save && options.moduleName) {
+          spinner.stop();
+          spinner.fail(
+            `cannot link unless '${moduleName}' is saved in dependencies or devDependencies in the package.json file`
+          );
+          process.exit(1);
+        }
+        spinner.stop();
+        spinner.warn(
+          `'${moduleName}' not saved in dependencies or devDependencies in the package.json file`
+        );
+        return;
+      }
+      if (pkg && options.save && options.moduleName) {
+        if (!options.dryRun) {
+          const linkTypeDefinitionsSet = new Set([
+            ...(pkg.linkTypeDefinitions || []),
+            ...linkTypeDefinitions
+          ]);
+          if (options.unlink) linkTypeDefinitionsSet.delete(options.moduleName);
+          pkg.linkTypeDefinitions = [...linkTypeDefinitionsSet];
+          await fs.writeJson(pkgPath, pkg, { spaces: 2 });
+        }
+        if (options.dryRun || options.verbose) {
+          spinner.info(`updated ${pkgPath}`);
+        }
+      }
       const modulePath = path.resolve(rootPath, 'node_modules', moduleName);
       const definitionsPath = await findDefinitionsPath(modulePath);
       await Promise.all(
@@ -143,9 +187,9 @@ export async function linkTypeDefinitions(
 }
 
 export async function setup(
-  partialOptions: Partial<SetupOptions>
+  partialOptions: Partial<SetupOptions>,
+  spinner = ora()
 ): Promise<boolean> {
-  const spinner = ora();
   let options: SetupOptions = {
     cwd: process.cwd(),
     dryRun: false,
@@ -217,11 +261,33 @@ export async function setup(
     spinner.info(`updated ${gitignorePath}`);
   }
   if (options.install) {
-    const p = execa('pnpm', ['install']);
-    p.stdout?.pipe(process.stdout);
-    await p;
+    const npm = await getNpm();
+    await execa(npm, ['install'], { stdio: 'inherit' });
   }
   return true;
+}
+
+async function getNpm(
+  npms = ['pnpm', 'yarn', 'npm', 'chipchop']
+): Promise<string> {
+  const foundNpms: Set<string> = new Set();
+  await Promise.all(
+    npms.map(async (npm: string) => {
+      const isWin = os.platform().indexOf('win') > -1;
+      const where = isWin ? 'where' : 'which';
+      try {
+        const p = await execa(where, [npm]);
+        if (!p.exitCode) foundNpms.add(npm);
+      } catch (err) {}
+    })
+  );
+  return (
+    npms.reduce((foundNpm: string | null, npm: string) => {
+      if (foundNpm) return foundNpm;
+      if (foundNpms.has(npm)) return npm;
+      return foundNpm;
+    }, null) || 'npm'
+  );
 }
 
 export async function findDefinitionsPath(modulePath: string): Promise<string> {
