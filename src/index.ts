@@ -65,7 +65,11 @@ export default async function linkTypeDefinitions(
   if (options.verbose) {
     spinner.info(`OPTIONS: ${JSON.stringify(options, null, 2)}`);
   }
-  const rootPath = (await pkgDir(path.resolve(options.cwd))) || options.cwd;
+  const rootPath = (await fs.pathExists(
+    path.resolve(__dirname, '../../..', 'node_modules')
+  ))
+    ? path.resolve(__dirname, '../../..')
+    : (await pkgDir(options.cwd)) || options.cwd;
   const typesLocationPath = path.resolve(
     rootPath,
     'node_modules/@types',
