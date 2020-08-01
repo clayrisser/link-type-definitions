@@ -21,8 +21,8 @@ export interface LinkTypeDefinitionsOptions {
   cwd: string;
   dryRun: boolean;
   moduleName?: string;
+  ns: string;
   save: boolean;
-  typesLocation: string;
   unlink: boolean;
   verbose: boolean;
 }
@@ -40,11 +40,11 @@ export default async function linkTypeDefinitions(
   spinner = ora()
 ) {
   let options: LinkTypeDefinitionsOptions = {
-    copy: false,
+    copy: true,
     cwd: process.cwd(),
     dryRun: false,
+    ns: '_',
     save: false,
-    typesLocation: '',
     unlink: false,
     verbose: false,
     ...partialOptions
@@ -66,14 +66,11 @@ export default async function linkTypeDefinitions(
     spinner.info(`OPTIONS: ${JSON.stringify(options, null, 2)}`);
   }
   const rootPath = (await pkgDir(path.resolve(options.cwd))) || options.cwd;
-  if (!options.typesLocation.length) {
-    if (await fs.pathExists(path.resolve(rootPath, 'src'))) {
-      options.typesLocation = path.resolve(options.cwd, 'src/@types/_');
-    } else {
-      options.typesLocation = path.resolve(options.cwd, '@types/_');
-    }
-  }
-  const typesLocationPath = path.resolve(rootPath, options.typesLocation);
+  const typesLocationPath = path.resolve(
+    rootPath,
+    'node_modules/@types',
+    options.ns
+  );
   const pkgPath = path.resolve(rootPath, 'package.json');
   if (!(await fs.pathExists(pkgPath))) return;
   let pkg: Pkg | void;
@@ -84,6 +81,9 @@ export default async function linkTypeDefinitions(
   let { linkTypeDefinitions } = pkg;
   if (options.moduleName) linkTypeDefinitions = [options.moduleName];
   if (options) if (!linkTypeDefinitions) return;
+  if (!options.dryRun && !options.moduleName) {
+    await fs.remove(typesLocationPath);
+  }
   await Promise.all(
     linkTypeDefinitions.map(async (moduleName: string) => {
       const dependencies = new Set(
@@ -95,7 +95,7 @@ export default async function linkTypeDefinitions(
           : []
       );
       if (!dependencies.has(moduleName) && !options.unlink) {
-        if (options.save && options.moduleName) {
+        if (options.moduleName) {
           spinner.stop();
           spinner.fail(
             `cannot link unless '${moduleName}' is saved in dependencies or devDependencies in the package.json file`
@@ -184,6 +184,9 @@ export default async function linkTypeDefinitions(
       );
     })
   );
+  if (!options.dryRun) {
+    await writeLinkedDirectives(typesLocationPath, options.ns);
+  }
 }
 
 export async function setup(
@@ -211,18 +214,7 @@ export async function setup(
     spinner.info(`OPTIONS: ${JSON.stringify(options, null, 2)}`);
   }
   const rootPath = (await pkgDir(path.resolve(options.cwd))) || options.cwd;
-  let relativeTypesLocation = options.typesLocation;
-  if (!options.typesLocation.length) {
-    if (await fs.pathExists(path.resolve(rootPath, 'src'))) {
-      relativeTypesLocation = 'src/@types/_';
-      options.typesLocation = path.resolve(options.cwd, relativeTypesLocation);
-    } else {
-      relativeTypesLocation = '@types/_';
-      options.typesLocation = path.resolve(options.cwd, relativeTypesLocation);
-    }
-  }
   const pkgPath = path.resolve(rootPath, 'package.json');
-  const gitignorePath = path.resolve(rootPath, '.gitignore');
   if (!(await fs.pathExists(pkgPath))) return false;
   let pkg: Pkg | void;
   try {
@@ -235,7 +227,6 @@ export async function setup(
     return false;
   }
   pkg.linkTypeDefinitions = [];
-  pkg.linkTypeDefinitionsOptions = { typesLocation: relativeTypesLocation };
   let postinstall = `${packageName} link`;
   if (scripts?.postinstall?.length) {
     postinstall = `${scripts.postinstall} && ${postinstall}`;
@@ -251,14 +242,8 @@ export async function setup(
       [packageName]: `^${packageVersion}`
     }
   };
-  if (!options.dryRun) {
-    await fs.writeJson(pkgPath, pkg, { spaces: 2 });
-    await fs.appendFile(gitignorePath, `\n/${relativeTypesLocation}\n`);
-  }
-  if (options.dryRun || options.verbose) {
-    spinner.info(`updated ${pkgPath}`);
-    spinner.info(`updated ${gitignorePath}`);
-  }
+  if (!options.dryRun) await fs.writeJson(pkgPath, pkg, { spaces: 2 });
+  if (options.dryRun || options.verbose) spinner.info(`updated ${pkgPath}`);
   if (options.install) {
     const npm = await getNpm();
     await execa(npm, ['install'], { stdio: 'inherit' });
@@ -316,6 +301,37 @@ export async function findDefinitionsPath(modulePath: string): Promise<string> {
   if (definitionsPaths.length === 1) return definitionsPaths[0];
   const defintionsPathArray = definitionsPaths[0].split('/');
   return defintionsPathArray.slice(0, defintionsPathArray.length - 1).join('/');
+}
+
+export async function writeLinkedDirectives(
+  typesLocationPath: string,
+  ns: string
+) {
+  const relativeTypePathsSet = new Set(
+    (await globby(path.resolve(typesLocationPath, '**/*.d.ts'))).map(
+      (typePath: string) => {
+        return typePath.slice(typesLocationPath.length + 1);
+      }
+    )
+  );
+  relativeTypePathsSet.delete('index.d.ts');
+  const relativeTypePaths = [...relativeTypePathsSet];
+  if (!relativeTypePaths.length) return;
+  const linkedDirectives = createLinkedDirectives(relativeTypePaths, ns);
+  await fs.mkdirs(typesLocationPath);
+  await fs.writeFile(
+    path.resolve(typesLocationPath, 'index.d.ts'),
+    linkedDirectives
+  );
+}
+
+export function createLinkedDirectives(filePaths: string[], ns = '_'): string {
+  return [
+    `declare module '${ns}' {}`,
+    ...filePaths.map(
+      (filePath: string) => `/// <reference path="${filePath}" />`
+    )
+  ].join('\n');
 }
 
 interface DefinitionsPathHashMap {

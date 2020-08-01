@@ -12,7 +12,6 @@ export default class SetupCommand extends Command {
     'no-install': flags.boolean({ required: false }),
     dry: flags.boolean({ char: 'd', required: false }),
     help: flags.help({ char: 'h', required: false }),
-    location: flags.string({ char: 'l', required: false }),
     verbose: flags.boolean({ char: 'v', required: false })
   };
 
@@ -22,7 +21,6 @@ export default class SetupCommand extends Command {
     const success = await setup(
       {
         ...(flags.dry ? { dryRun: flags.dry } : {}),
-        ...(flags.location ? { typesLocation: flags.location } : {}),
         ...(flags.verbose ? { verbose: flags.verbose } : {}),
         ...(flags['no-install'] ? { install: false } : { install: true })
       },

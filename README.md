@@ -44,10 +44,7 @@ _package.json_
   "devDependencies": {
     "link-type-definitions": "^0.2.0"
   },
-  "linkTypeDefinitions": [],
-  "linkTypeDefinitionsOptions": {
-    "typesLocation": "src/@types/_"
-  }
+  "linkTypeDefinitions": []
 }
 ```
 

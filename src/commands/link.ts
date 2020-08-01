@@ -10,11 +10,10 @@ export default class LinkCommand extends Command {
   static examples = ['$ link-type-definitions link @types/node'];
 
   static flags: Input<any> = {
-    copy: flags.boolean({ char: 'c', required: false }),
     dry: flags.boolean({ char: 'd', required: false }),
     help: flags.help({ char: 'h', required: false }),
-    location: flags.string({ char: 'l', required: false }),
     save: flags.boolean({ char: 'S', required: false }),
+    symlink: flags.boolean({ required: false }),
     verbose: flags.boolean({ char: 'v', required: false })
   };
 
@@ -29,10 +28,9 @@ export default class LinkCommand extends Command {
     await linkTypeDefinitions(
       {
         ...(args.module ? { moduleName: args.module } : {}),
-        ...(flags.copy ? { copy: flags.copy } : {}),
         ...(flags.dry ? { dryRun: flags.dry } : {}),
-        ...(flags.location ? { typesLocation: flags.location } : {}),
         ...(flags.save ? { save: flags.save } : {}),
+        ...(flags.symlink ? { copy: false } : { copy: true }),
         ...(flags.verbose ? { verbose: flags.verbose } : {})
       },
       spinner
