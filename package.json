@@ -1,17 +1,17 @@
 {
-  "name": "tsdpm",
+  "name": "link-type-definitions",
   "version": "0.2.0",
-  "description": "typescript definition package manager",
+  "description": "link type definitions",
   "keywords": [
-    "tsdpm",
+    "link-type-definitions",
     "typescript",
     "package",
     "manager",
     "ts"
   ],
-  "homepage": "https://github.com/codejamninja/tsdpm",
+  "homepage": "https://github.com/codejamninja/link-type-definitions",
   "bugs": {
-    "url": "https://github.com/codejamninja/tsdpm/issues",
+    "url": "https://github.com/codejamninja/link-type-definitions/issues",
     "email": "jam@codejam.ninja"
   },
   "license": "MIT",
@@ -27,11 +27,11 @@
   ],
   "main": "lib/index.js",
   "bin": {
-    "tsdpm": "bin/tsdpm.js"
+    "link-type-definitions": "bin/linkTypeDefinitions.js"
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/codejamninja/tsdpm"
+    "url": "https://github.com/codejamninja/link-type-definitions"
   },
   "scripts": {
     "build": "make -s build",
@@ -97,7 +97,7 @@
   ],
   "oclif": {
     "commands": "./lib/commands",
-    "bin": "tsdpm",
+    "bin": "link-type-definitions",
     "plugins": [
       "@oclif/plugin-help"
     ]

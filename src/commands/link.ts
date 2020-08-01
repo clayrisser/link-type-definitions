@@ -2,12 +2,12 @@ import Parser from '@oclif/parser';
 import ora from 'ora';
 import { Command, flags } from '@oclif/command';
 import { Input } from '@oclif/command/lib/flags';
-import { linkTypeDefinitions } from '..';
+import linkTypeDefinitions from '..';
 
 export default class LinkCommand extends Command {
   static description = 'link typescript definitions';
 
-  static examples = ['$ tsdpm link @types/node'];
+  static examples = ['$ link-type-definitions link @types/node'];
 
   static flags: Input<any> = {
     copy: flags.boolean({ char: 'c', required: false }),

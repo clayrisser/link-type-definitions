@@ -6,7 +6,7 @@ import { setup } from '..';
 export default class SetupCommand extends Command {
   static description = 'setup typescript definitions';
 
-  static examples = ['$ tsdpm setup'];
+  static examples = ['$ link-type-definitions setup'];
 
   static flags: Input<any> = {
     'no-install': flags.boolean({ required: false }),

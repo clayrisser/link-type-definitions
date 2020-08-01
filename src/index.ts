@@ -34,7 +34,7 @@ export interface SetupOptions {
   verbose: boolean;
 }
 
-export async function linkTypeDefinitions(
+export default async function linkTypeDefinitions(
   partialOptions: Partial<LinkTypeDefinitionsOptions> = {},
   spinner = ora()
 ) {

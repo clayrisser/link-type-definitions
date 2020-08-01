@@ -1,6 +1,6 @@
-# tsdpm
+# link-type-definitions
 
-[![GitHub stars](https://img.shields.io/github/stars/codejamninja/tsdpm.svg?style=social&label=Stars)](https://github.com/codejamninja/tsdpm)
+[![GitHub stars](https://img.shields.io/github/stars/codejamninja/link-type-definitions.svg?style=social&label=Stars)](https://github.com/codejamninja/link-type-definitions)
 
 > typescript definition package manager
 
@@ -21,7 +21,7 @@ Please ★ this repo if you found it useful ★ ★ ★
 ## Installation
 
 ```sh
-npm install --dev tsdpm
+npm install --dev link-type-definitions
 ```
 
 ## Dependencies
@@ -33,10 +33,10 @@ npm install --dev tsdpm
 Simply add the npm modules with the type defintions to the `typeDefintions` section in your `package.json` file.
 
 ```sh
-tsdpm install
+link-type-definitions install
 ```
 
-It is recommended to add `tsdpm install` script to the the `postinstall` script.
+It is recommended to add `link-type-definitions install` script to the the `postinstall` script.
 
 ### Example
 
@@ -46,10 +46,10 @@ _Notice that you can install type definition that are not part of DefinitelyType
 {
   "name": "example",
   "scripts": {
-    "postinstall": "tsdpm install"
+    "postinstall": "link-type-definitions install"
   },
   "devDependancies": {
-    "tsdpm": "^0.0.2"
+    "link-type-definitions": "^0.0.2"
   },
   "typeDefinitions": {
     "closure-library": "https://github.com/fivetran/DefinitelyTyped.git#::/closure-library"
@@ -59,25 +59,25 @@ _Notice that you can install type definition that are not part of DefinitelyType
 
 ## Support
 
-Submit an [issue](https://github.com/codejamninja/tsdpm/issues/new)
+Submit an [issue](https://github.com/codejamninja/link-type-definitions/issues/new)
 
 ## Screenshots
 
-[Contribute](https://github.com/codejamninja/tsdpm/blob/master/CONTRIBUTING.md) a screenshot
+[Contribute](https://github.com/codejamninja/link-type-definitions/blob/master/CONTRIBUTING.md) a screenshot
 
 ## Contributing
 
-Review the [guidelines for contributing](https://github.com/codejamninja/tsdpm/blob/master/CONTRIBUTING.md)
+Review the [guidelines for contributing](https://github.com/codejamninja/link-type-definitions/blob/master/CONTRIBUTING.md)
 
 ## License
 
-[MIT License](https://github.com/codejamninja/tsdpm/blob/master/LICENSE)
+[MIT License](https://github.com/codejamninja/link-type-definitions/blob/master/LICENSE)
 
 [Jam Risser](https://codejam.ninja) © 2019
 
 ## Changelog
 
-Review the [changelog](https://github.com/codejamninja/tsdpm/blob/master/CHANGELOG.md)
+Review the [changelog](https://github.com/codejamninja/link-type-definitions/blob/master/CHANGELOG.md)
 
 ## Credits
 
