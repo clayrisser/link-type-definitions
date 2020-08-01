@@ -42,7 +42,7 @@ _package.json_
     "postinstall": "link-type-definitions link"
   },
   "devDependencies": {
-    "link-type-definitions": "^0.2.0"
+    "link-type-definitions": "^0.2.5"
   },
   "linkTypeDefinitions": []
 }
