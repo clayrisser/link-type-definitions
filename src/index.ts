@@ -327,10 +327,10 @@ export async function writeLinkedDirectives(
 
 export function createLinkedDirectives(filePaths: string[], ns = '_'): string {
   return [
-    `declare module '${ns}' {}`,
     ...filePaths.map(
       (filePath: string) => `/// <reference path="${filePath}" />`
-    )
+    ),
+    `declare module '${ns}' {}`
   ].join('\n');
 }
 
