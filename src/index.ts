@@ -133,7 +133,7 @@ export default async function linkTypeDefinitions(
       if (moduleName.substr(0, 2) === './') {
         if (installedFromPath) {
           await linkGlob(
-            path.resolve(installedFromPath, moduleName),
+            path.resolve(rootPath, moduleName),
             options,
             typesLocationPath,
             path
