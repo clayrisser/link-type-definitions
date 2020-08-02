@@ -72,11 +72,10 @@ export default async function linkTypeDefinitions(
     spinner.info(`OPTIONS: ${JSON.stringify(options, null, 2)}`);
   }
   const rootPath = (await pkgDir(options.cwd)) || options.cwd;
-  const installedFromPath = (await fs.pathExists(
-    path.resolve(__dirname, '../../..', 'node_modules')
-  ))
-    ? path.resolve(__dirname, '../../..')
+  const installedFromPath = /\/node_modules\/.*/g.test(options.cwd)
+    ? options.cwd.replace(/\/node_modules\/.*/g, '')
     : null;
+  console.log('INSTALLED FROM PATH', installedFromPath);
   const typesLocationPath = path.resolve(
     rootPath,
     'node_modules/@types',
