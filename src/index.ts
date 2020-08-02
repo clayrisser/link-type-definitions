@@ -1,7 +1,8 @@
 import execa from 'execa';
 import fs from 'fs-extra';
 import globby from 'globby';
-import ora from 'ora';
+import newRegExp from 'newregexp';
+import ora, { Ora } from 'ora';
 import os from 'os';
 import path from 'path';
 import pkgDir from 'pkg-dir';
@@ -11,6 +12,7 @@ const packageName = pkg.name;
 const packageVersion = pkg.version;
 
 export interface Pkg {
+  name: string;
   linkTypeDefinitions: string[];
   linkTypeDefinitionsOptions: Partial<LinkTypeDefinitionsOptions>;
   [key: string]: any;
@@ -20,6 +22,7 @@ export interface LinkTypeDefinitionsOptions {
   copy: boolean;
   cwd: string;
   dryRun: boolean;
+  ignorePaths?: string[];
   moduleName?: string;
   ns: string;
   save: boolean;
@@ -65,11 +68,12 @@ export default async function linkTypeDefinitions(
   if (options.verbose) {
     spinner.info(`OPTIONS: ${JSON.stringify(options, null, 2)}`);
   }
-  const rootPath = (await fs.pathExists(
+  const rootPath = (await pkgDir(options.cwd)) || options.cwd;
+  const installedFromPath = (await fs.pathExists(
     path.resolve(__dirname, '../../..', 'node_modules')
   ))
     ? path.resolve(__dirname, '../../..')
-    : (await pkgDir(options.cwd)) || options.cwd;
+    : null;
   const typesLocationPath = path.resolve(
     rootPath,
     'node_modules/@types',
@@ -84,7 +88,7 @@ export default async function linkTypeDefinitions(
   if (!pkg) return;
   let { linkTypeDefinitions } = pkg;
   if (options.moduleName) linkTypeDefinitions = [options.moduleName];
-  if (options) if (!linkTypeDefinitions) return;
+  if (!linkTypeDefinitions.length) return;
   if (!options.dryRun && !options.moduleName) {
     await fs.remove(typesLocationPath);
   }
@@ -98,7 +102,11 @@ export default async function linkTypeDefinitions(
             ]
           : []
       );
-      if (!dependencies.has(moduleName) && !options.unlink) {
+      if (
+        moduleName.substr(0, 2) !== './' &&
+        !dependencies.has(moduleName) &&
+        !options.unlink
+      ) {
         if (options.moduleName) {
           spinner.stop();
           spinner.fail(
@@ -126,71 +134,109 @@ export default async function linkTypeDefinitions(
           spinner.info(`updated ${pkgPath}`);
         }
       }
-      const modulePath = path.resolve(rootPath, 'node_modules', moduleName);
-      const definitionsPath = await findDefinitionsPath(modulePath);
-      await Promise.all(
-        (await globby(path.resolve(definitionsPath, '**/*.d.ts?(x)'))).map(
-          async (globPath: string) => {
-            const relativeGlobPath = globPath.slice(definitionsPath.length + 1);
-            if (!options.dryRun) {
-              await fs.remove(
-                path.resolve(typesLocationPath, moduleName, relativeGlobPath)
-              );
-            }
-            if (options.unlink) {
-              if (options.dryRun || options.verbose) {
-                spinner.fail(
-                  `${path.resolve(
-                    typesLocationPath,
-                    moduleName,
-                    relativeGlobPath
-                  )}`
-                );
-              }
-            } else {
-              if (!options.dryRun) {
-                await fs.mkdirs(path.resolve(typesLocationPath, moduleName));
-                if (options.copy) {
-                  await fs.copy(
-                    path.resolve(definitionsPath, relativeGlobPath),
-                    path.resolve(
-                      typesLocationPath,
-                      moduleName,
-                      relativeGlobPath
-                    )
-                  );
-                } else {
-                  await fs.symlink(
-                    path.resolve(definitionsPath, relativeGlobPath),
-                    path.resolve(
-                      typesLocationPath,
-                      moduleName,
-                      relativeGlobPath
-                    ),
-                    'file'
-                  );
-                }
-              }
-              if (options.dryRun || options.verbose) {
-                spinner.info(
-                  `${path.resolve(definitionsPath, relativeGlobPath)} ${
-                    options.copy ? '=>' : '->'
-                  } ${path.resolve(
-                    typesLocationPath,
-                    moduleName,
-                    relativeGlobPath
-                  )}`
-                );
-              }
-            }
-          }
-        )
-      );
+      if (moduleName.substr(0, 2) === './') {
+        if (installedFromPath) {
+          await linkGlob(
+            path.resolve(installedFromPath, moduleName),
+            options,
+            typesLocationPath,
+            path.resolve(...(pkg ? [pkg?.name] : []), moduleName),
+            spinner
+          );
+        }
+      } else if (!installedFromPath) {
+        const modulePath = path.resolve(rootPath, 'node_modules', moduleName);
+        const definitionsPath = await findDefinitionsPath(modulePath);
+        await linkGlob(
+          definitionsPath,
+          options,
+          typesLocationPath,
+          moduleName,
+          spinner
+        );
+      }
     })
   );
   if (!options.dryRun) {
     await writeLinkedDirectives(typesLocationPath, options.ns);
   }
+}
+
+export async function linkGlob(
+  rootGlobPath: string,
+  options: LinkTypeDefinitionsOptions,
+  typesLocationPath: string,
+  moduleName: string,
+  spinner: Ora
+) {
+  await Promise.all(
+    (await globby(path.resolve(rootGlobPath, '**/*.d.ts?(x)'))).map(
+      async (globPath: string) => {
+        const relativeGlobPath = globPath.slice(rootGlobPath.length + 1);
+        if (
+          (options.ignorePaths || []).reduce(
+            (shouldIgnore: boolean, ignorePath: string) => {
+              if (shouldIgnore) return shouldIgnore;
+              if (newRegExp(ignorePath).test(globPath)) return true;
+              return shouldIgnore;
+            },
+            false
+          )
+        ) {
+          if (!options.dryRun) {
+            await fs.remove(
+              path.resolve(typesLocationPath, moduleName, relativeGlobPath)
+            );
+          }
+          if (options.dryRun || options.verbose) {
+            spinner.fail(
+              `${path.resolve(typesLocationPath, moduleName, relativeGlobPath)}`
+            );
+          }
+          return true;
+        }
+        if (!options.dryRun) {
+          await fs.remove(
+            path.resolve(typesLocationPath, moduleName, relativeGlobPath)
+          );
+        }
+        if (options.unlink) {
+          if (options.dryRun || options.verbose) {
+            spinner.fail(
+              `${path.resolve(typesLocationPath, moduleName, relativeGlobPath)}`
+            );
+          }
+        } else {
+          if (!options.dryRun) {
+            await fs.mkdirs(path.resolve(typesLocationPath, moduleName));
+            if (options.copy) {
+              await fs.copy(
+                path.resolve(rootGlobPath, relativeGlobPath),
+                path.resolve(typesLocationPath, moduleName, relativeGlobPath)
+              );
+            } else {
+              await fs.symlink(
+                path.resolve(rootGlobPath, relativeGlobPath),
+                path.resolve(typesLocationPath, moduleName, relativeGlobPath),
+                'file'
+              );
+            }
+          }
+          if (options.dryRun || options.verbose) {
+            spinner.info(
+              `${path.resolve(rootGlobPath, relativeGlobPath)} ${
+                options.copy ? '=>' : '->'
+              } ${path.resolve(
+                typesLocationPath,
+                moduleName,
+                relativeGlobPath
+              )}`
+            );
+          }
+        }
+      }
+    )
+  );
 }
 
 export async function setup(
@@ -320,7 +366,6 @@ export async function writeLinkedDirectives(
   );
   relativeTypePathsSet.delete('index.d.ts');
   const relativeTypePaths = [...relativeTypePathsSet];
-  if (!relativeTypePaths.length) return;
   const linkedDirectives = createLinkedDirectives(relativeTypePaths, ns);
   await fs.mkdirs(typesLocationPath);
   await fs.writeFile(
