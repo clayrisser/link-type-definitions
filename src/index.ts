@@ -169,6 +169,7 @@ export async function linkGlob(
     (await globby(path.resolve(rootGlobPath, '**/*.d.ts?(x)'))).map(
       async (globPath: string) => {
         const relativeGlobPath = globPath.slice(rootGlobPath.length + 1);
+        console.log(rootGlobPath, relativeGlobPath, typesLocationPath);
         if (
           (options.ignorePaths || []).reduce(
             (shouldIgnore: boolean, ignorePath: string) => {
