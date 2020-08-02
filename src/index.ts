@@ -72,11 +72,9 @@ export default async function linkTypeDefinitions(
   const installedFromPath = /\/node_modules\/.*/g.test(options.cwd)
     ? options.cwd.replace(/\/node_modules\/.*/g, '')
     : null;
-  const typesLocationPath = path.resolve(
-    rootPath,
-    'node_modules/@types',
-    options.ns
-  );
+  const typesLocationPath = installedFromPath
+    ? path.resolve(installedFromPath, 'node_modules/@types', options.ns)
+    : path.resolve(rootPath, 'node_modules/@types', options.ns);
   const pkgPath = path.resolve(rootPath, 'package.json');
   if (!(await fs.pathExists(pkgPath))) return;
   let pkg: Pkg | void;
@@ -132,17 +130,8 @@ export default async function linkTypeDefinitions(
           spinner.info(`updated ${pkgPath}`);
         }
       }
-      console.log('IFP', installedFromPath);
       if (moduleName.substr(0, 2) === './') {
         if (installedFromPath) {
-          console.log(
-            'yay',
-            path.resolve(installedFromPath, moduleName),
-            options,
-            typesLocationPath,
-            path.resolve(...(pkg ? [pkg?.name] : []), moduleName),
-            spinner
-          );
           await linkGlob(
             path.resolve(installedFromPath, moduleName),
             options,
@@ -154,14 +143,6 @@ export default async function linkTypeDefinitions(
       } else if (!installedFromPath) {
         const modulePath = path.resolve(rootPath, 'node_modules', moduleName);
         const definitionsPath = await findDefinitionsPath(modulePath);
-        console.log(
-          'oops',
-          definitionsPath,
-          options,
-          typesLocationPath,
-          moduleName,
-          spinner
-        );
         await linkGlob(
           definitionsPath,
           options,
