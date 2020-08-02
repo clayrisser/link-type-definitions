@@ -132,6 +132,11 @@ export default async function linkTypeDefinitions(
       }
       if (moduleName.substr(0, 2) === './') {
         if (installedFromPath) {
+          console.log(
+            path.resolve(installedFromPath, moduleName),
+            typesLocationPath,
+            path.resolve(...(pkg ? [pkg?.name] : []), moduleName)
+          );
           await linkGlob(
             path.resolve(installedFromPath, moduleName),
             options,
@@ -165,6 +170,10 @@ export async function linkGlob(
   moduleName: string,
   spinner: Ora
 ) {
+  console.log(
+    path.resolve(rootGlobPath, '**/*.d.ts?(x)'),
+    await globby(path.resolve(rootGlobPath, '**/*.d.ts?(x)'))
+  );
   await Promise.all(
     (await globby(path.resolve(rootGlobPath, '**/*.d.ts?(x)'))).map(
       async (globPath: string) => {
