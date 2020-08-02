@@ -42,9 +42,6 @@ export default async function linkTypeDefinitions(
   partialOptions: Partial<LinkTypeDefinitionsOptions> = {},
   spinner = ora()
 ) {
-  console.log('CWD', process.cwd());
-  console.log('DIRNAME', __dirname);
-  console.log('PKG_DIR', await pkgDir(process.cwd()));
   let options: LinkTypeDefinitionsOptions = {
     copy: true,
     cwd: process.cwd(),
@@ -75,7 +72,6 @@ export default async function linkTypeDefinitions(
   const installedFromPath = /\/node_modules\/.*/g.test(options.cwd)
     ? options.cwd.replace(/\/node_modules\/.*/g, '')
     : null;
-  console.log('INSTALLED FROM PATH', installedFromPath);
   const typesLocationPath = path.resolve(
     rootPath,
     'node_modules/@types',
@@ -136,8 +132,17 @@ export default async function linkTypeDefinitions(
           spinner.info(`updated ${pkgPath}`);
         }
       }
+      console.log('IFP', installedFromPath);
       if (moduleName.substr(0, 2) === './') {
         if (installedFromPath) {
+          console.log(
+            'yay',
+            path.resolve(installedFromPath, moduleName),
+            options,
+            typesLocationPath,
+            path.resolve(...(pkg ? [pkg?.name] : []), moduleName),
+            spinner
+          );
           await linkGlob(
             path.resolve(installedFromPath, moduleName),
             options,
@@ -149,6 +154,14 @@ export default async function linkTypeDefinitions(
       } else if (!installedFromPath) {
         const modulePath = path.resolve(rootPath, 'node_modules', moduleName);
         const definitionsPath = await findDefinitionsPath(modulePath);
+        console.log(
+          'oops',
+          definitionsPath,
+          options,
+          typesLocationPath,
+          moduleName,
+          spinner
+        );
         await linkGlob(
           definitionsPath,
           options,
