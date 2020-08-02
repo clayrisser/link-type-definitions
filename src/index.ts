@@ -141,7 +141,9 @@ export default async function linkTypeDefinitions(
             path.resolve(installedFromPath, moduleName),
             options,
             typesLocationPath,
-            path.resolve(...(pkg ? [pkg?.name] : []), moduleName),
+            path
+              .resolve(...(pkg ? [pkg?.name] : []), moduleName)
+              .slice(process.cwd().length + 1),
             spinner
           );
         }
