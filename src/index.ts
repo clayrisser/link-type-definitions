@@ -167,16 +167,10 @@ export async function linkGlob(
   moduleName: string,
   spinner: Ora
 ) {
-  console.log(rootGlobPath, typesLocationPath, moduleName);
-  console.log(
-    path.resolve(rootGlobPath, '**/*.d.ts?(x)'),
-    await globby(path.resolve(rootGlobPath, '**/*.d.ts?(x)'))
-  );
   await Promise.all(
     (await globby(path.resolve(rootGlobPath, '**/*.d.ts?(x)'))).map(
       async (globPath: string) => {
         const relativeGlobPath = globPath.slice(rootGlobPath.length + 1);
-        console.log(rootGlobPath, relativeGlobPath, typesLocationPath);
         if (
           (options.ignorePaths || []).reduce(
             (shouldIgnore: boolean, ignorePath: string) => {
