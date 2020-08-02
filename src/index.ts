@@ -42,6 +42,9 @@ export default async function linkTypeDefinitions(
   partialOptions: Partial<LinkTypeDefinitionsOptions> = {},
   spinner = ora()
 ) {
+  console.log('CWD', process.cwd());
+  console.log('DIRNAME', __dirname);
+  console.log('PKG_DIR', await pkgDir(process.cwd()));
   let options: LinkTypeDefinitionsOptions = {
     copy: true,
     cwd: process.cwd(),
