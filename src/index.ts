@@ -85,9 +85,6 @@ export default async function linkTypeDefinitions(
   let { linkTypeDefinitions } = pkg;
   if (options.moduleName) linkTypeDefinitions = [options.moduleName];
   if (!linkTypeDefinitions.length) return;
-  if (!options.dryRun && !options.moduleName) {
-    await fs.remove(typesLocationPath);
-  }
   await Promise.all(
     linkTypeDefinitions.map(async (moduleName: string) => {
       const dependencies = new Set(
