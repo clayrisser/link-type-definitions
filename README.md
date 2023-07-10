@@ -2,6 +2,8 @@
 
 [![GitHub stars](https://img.shields.io/github/stars/codejamninja/link-type-definitions.svg?style=social&label=Stars)](https://github.com/codejamninja/link-type-definitions)
 
+![](assets/link-type-definitions.png)
+
 > link type definitions
 
 Link and use 3rd party typescript defintions without DefinitelyTyped.
